@@ -10,10 +10,10 @@ import (
 // From exchange, NumOrders denotes number of aggregated orders
 // and should not use for multiplying with Size
 type Order struct {
-	OrderID   string          `json:"order_id"`
+	OrderID   string          `json:"order_id,omitempty"`
 	Price     decimal.Decimal `json:"price"`
 	Size      decimal.Decimal `json:"size"`
-	NumOrders int64           `json:"num_orders"`
+	NumOrders int64           `json:"num_orders,omitempty"`
 }
 
 // Book holds general info of orderbook list
