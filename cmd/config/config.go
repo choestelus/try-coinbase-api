@@ -7,8 +7,8 @@ import (
 )
 
 type Config struct {
-	Mode         string            `long:"mode" required:"true" choice:"oneshot" choice:"service" description:"select wheter to run as oneshot or until manually stop"`
-	EngineConfig map[string]string `long:"engine-config" required:"true" description:"configuration for exchange engine, in key:value format"`
+	Mode         string            `short:"m" long:"mode" required:"true" choice:"oneshot" choice:"service" description:"select wheter to run as oneshot or until manually stop"`
+	EngineConfig map[string]string `short:"e" long:"engine-config" required:"true" description:"configuration for exchange engine, in key:value format, one pair per each flag"`
 }
 
 func MustParseConfig() Config {

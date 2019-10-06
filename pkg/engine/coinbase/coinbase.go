@@ -13,6 +13,8 @@ import (
 // see https://docs.pro.coinbase.com/#get-product-order-book for detailed information
 // on API, level 3 API is not supported in this function because
 // ratelimiting issue, to use level 3 API, use websocket-based implementation instead
+//
+// This function return raw JSON response as-is.
 func FetchOrderBook(endpoint string, level int64, pair string) error {
 	levelErr := validation.Validate(level, validation.Length(1, 3))
 	endpointErr := validation.Validate(endpoint, is.URL)

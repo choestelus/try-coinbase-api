@@ -9,7 +9,9 @@ require (
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/go-resty/resty/v2 v2.0.0
 	github.com/jessevdk/go-flags v1.4.0
+	github.com/mitchellh/mapstructure v1.1.2
 	github.com/shopspring/decimal v0.0.0-20190905144223-a36b5d85f337
+	github.com/sirupsen/logrus v1.4.2
 	github.com/stretchr/testify v1.4.0 // indirect
 	go.uber.org/multierr v1.2.0 // indirect
 )
