@@ -12,7 +12,7 @@ import (
 func InterfaceStringToDecimal(i interface{}) (decimal.Decimal, error) {
 	str, ok := i.(string)
 	if !ok {
-		return decimal.Zero, errors.Wrap(fmt.Errorf("string type assertion failed"), "interface -> string")
+		return decimal.Zero, errors.Wrap(fmt.Errorf("type assertion failed"), "interface -> string")
 	}
 	return decimal.NewFromString(str)
 }
