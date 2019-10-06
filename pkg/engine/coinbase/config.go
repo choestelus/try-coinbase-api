@@ -12,11 +12,12 @@ type Config struct {
 	APILevel   int64  `mapstructure:"api_level"`
 }
 
-// MustParse parse config from supplied map[string]string
-// crash when failed to parse, this method self-mutate.
-func (c *Config) MustParse(engineConfig map[string]string) {
+// MustParseConfig parse config from supplied map[string]string
+// crash when failed to parse.
+func MustParseConfig(engineConfig map[string]string) Config {
+	c := Config{}
 	mstrConfig := mapstructure.DecoderConfig{WeaklyTypedInput: true, Result: &c}
-	decoder, err := mapstructure.NewDecoder(mstrConfig)
+	decoder, err := mapstructure.NewDecoder(&mstrConfig)
 	if err != nil {
 		logrus.Panic(err)
 	}
@@ -25,4 +26,6 @@ func (c *Config) MustParse(engineConfig map[string]string) {
 	if err != nil {
 		logrus.Panic(err)
 	}
+
+	return c
 }
