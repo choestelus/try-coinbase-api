@@ -15,25 +15,24 @@ import (
 // ratelimiting issue, to use level 3 API, use websocket-based implementation instead
 //
 // This function return raw JSON response as-is.
-func FetchOrderBook(endpoint string, level int64, pair string) error {
-	levelErr := validation.Validate(level, validation.Length(1, 3))
+func FetchOrderBook(endpoint string, level int64, pair string) ([]byte, error) {
+	// TODO: validate available pairs
+	levelErr := validation.Validate(level, validation.Min(1), validation.Max(3))
 	endpointErr := validation.Validate(endpoint, is.URL)
 	err := errors.Combine(levelErr, endpointErr)
 	if level == 3 {
 		err = errors.Combine(err, fmt.Errorf("orderbook level 3 API is likely to be limited, use streaming instead"))
 	}
 	if err != nil {
-		return errors.Wrap(err, "[coinbase] malformed params")
+		return nil, errors.Wrap(err, "[coinbase] malformed params")
 	}
 
 	queryURL := fmt.Sprintf("%s/products/%s/book", endpoint, pair)
 	client := resty.New()
 	resp, err := client.R().Get(queryURL)
-	// TODO: remove this after implemented
-	_ = resp
 
 	if err != nil {
-		return errors.Wrapf(err, "[coinbase] failed to call GET %v", queryURL)
+		return nil, errors.Wrapf(err, "[coinbase] failed to call GET %v", queryURL)
 	}
-	return nil
+	return resp.Body(), nil
 }

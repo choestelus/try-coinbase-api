@@ -12,6 +12,6 @@ require (
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/shopspring/decimal v0.0.0-20190905144223-a36b5d85f337
 	github.com/sirupsen/logrus v1.4.2
-	github.com/stretchr/testify v1.4.0 // indirect
+	github.com/stretchr/testify v1.4.0
 	go.uber.org/multierr v1.2.0 // indirect
 )
