@@ -160,6 +160,9 @@ func MustFetch(endpoint string, level int64, pair string) order.Book {
 func FetchStream(interval time.Duration, endpoint string, level int64, pair string) <-chan order.Book {
 	bookStream := make(chan order.Book)
 	go func(endpoint string, level int64, pair string) {
+		// Fetch immediately after called, otherwise it will wait for 1 interval
+		// until the first fetch is run
+		bookStream <- MustFetch(endpoint, level, pair)
 		for range time.Tick(interval) {
 			bookStream <- MustFetch(endpoint, level, pair)
 		}
