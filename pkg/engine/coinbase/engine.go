@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/choestelus/super-duper-succotash/pkg/order"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/mitchellh/mapstructure"
 	"github.com/sirupsen/logrus"
 )
@@ -21,7 +22,12 @@ type Engine struct {
 // crash when failed to parse.
 func MustParseConfig(engineConfig map[string]string) Engine {
 	e := Engine{}
-	mstrConfig := mapstructure.DecoderConfig{WeaklyTypedInput: true, Result: &e}
+	spew.Dump(engineConfig)
+	mstrConfig := mapstructure.DecoderConfig{
+		DecodeHook:       mapstructure.StringToTimeDurationHookFunc(),
+		WeaklyTypedInput: true,
+		Result:           &e,
+	}
 	decoder, err := mapstructure.NewDecoder(&mstrConfig)
 	if err != nil {
 		logrus.Panic(err)
