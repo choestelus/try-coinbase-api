@@ -125,4 +125,5 @@ type BookStreamer interface {
 	Configure(config map[string]string) BookStreamer
 	PlaceSideToRetrieve(string) string
 	AssetPair() (string, string)
+	PairOf(string) string
 }

@@ -1,6 +1,7 @@
 package coinbase
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -64,6 +65,20 @@ func (e Engine) AssetPair() (string, string) {
 	}
 	main, exchanging := splittedPair[0], splittedPair[1]
 	return strings.ToLower(main), strings.ToLower(exchanging)
+}
+
+// PairOf returns opposite asset of pair
+func (e Engine) PairOf(asset string) string {
+	main, exchanging := e.AssetPair()
+	switch asset {
+	case main:
+		return exchanging
+	case exchanging:
+		return main
+	default:
+		return fmt.Sprintf("[%v] is not in pair [%v]", asset, e.Pair)
+
+	}
 }
 
 // PlaceSideToRetrieve returns which side to place in order to get
