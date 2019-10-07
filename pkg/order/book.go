@@ -16,6 +16,24 @@ type Order struct {
 	NumOrders int64           `json:"num_orders,omitempty"`
 }
 
+// Match match order with supplied amount and returns taken amount and remaining order
+func Match(o Order, amount decimal.Decimal) (decimal.Decimal, Order) {
+	volume := o.Price.Mul(o.Size)
+	if volume.GreaterThanOrEqual(amount) {
+		taken := volume.Sub(amount)
+
+		takenSize := taken.Div(o.Price)
+		deductedOrder := o
+		deductedOrder.Size = o.Size.Sub(takenSize)
+		return taken, deductedOrder
+	}
+	// if amount is too large for order
+	taken := amount
+	deductedOrder := o
+	deductedOrder.Size = decimal.NewFromFloat(0)
+	return taken, deductedOrder
+}
+
 // Book holds general info of orderbook list
 // both bid side and ask side along with retrieval timestamp
 type Book struct {
