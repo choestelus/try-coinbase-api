@@ -1,22 +1,27 @@
 package coinbase
 
 import (
+	"time"
+
+	"github.com/choestelus/super-duper-succotash/pkg/order"
 	"github.com/mitchellh/mapstructure"
 	"github.com/sirupsen/logrus"
 )
 
-// Config holds necessary configuration for coinbase pro API
-type Config struct {
-	EngineName string `mapstructure:"name"`
-	APIURL     string `mapstructure:"api_url"`
-	APILevel   int64  `mapstructure:"api_level"`
+// Engine holds necessary configuration for coinbase pro API
+type Engine struct {
+	Name         string        `mapstructure:"name"`
+	APIURL       string        `mapstructure:"api_url"`
+	APILevel     int64         `mapstructure:"api_level"`
+	Pair         string        `mapstructure:"pair"`
+	PollInterval time.Duration `mapstructure:"poll_interval"`
 }
 
 // MustParseConfig parse config from supplied map[string]string
 // crash when failed to parse.
-func MustParseConfig(engineConfig map[string]string) Config {
-	c := Config{}
-	mstrConfig := mapstructure.DecoderConfig{WeaklyTypedInput: true, Result: &c}
+func MustParseConfig(engineConfig map[string]string) Engine {
+	e := Engine{}
+	mstrConfig := mapstructure.DecoderConfig{WeaklyTypedInput: true, Result: &e}
 	decoder, err := mapstructure.NewDecoder(&mstrConfig)
 	if err != nil {
 		logrus.Panic(err)
@@ -27,5 +32,11 @@ func MustParseConfig(engineConfig map[string]string) Config {
 		logrus.Panic(err)
 	}
 
-	return c
+	return e
+}
+
+// OpenStream streams orderbook with supplied configuration
+func (e Engine) OpenStream(cfg map[string]string) <-chan order.Book {
+	return FetchStream(e.PollInterval, e.APIURL, e.APILevel, e.Pair)
+
 }

@@ -29,5 +29,5 @@ type Book struct {
 // streaming API part, underlying that's synchronous
 // blocking API, should be wrapped with channel
 type BookStreamer interface {
-	Tick() <-chan Book
+	OpenStream(config map[string]string) <-chan Book
 }
