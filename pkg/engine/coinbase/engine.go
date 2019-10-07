@@ -1,6 +1,7 @@
 package coinbase
 
 import (
+	"strings"
 	"time"
 
 	"github.com/choestelus/super-duper-succotash/pkg/order"
@@ -48,4 +49,26 @@ func (e Engine) OpenStream(cfg map[string]string) <-chan order.Book {
 // Configure set self configuration with supplied args
 func (e Engine) Configure(cfg map[string]string) order.BookStreamer {
 	return MustParseConfig(cfg)
+}
+
+// AssetPair returns main asset and exchanging asset of pair
+// e.g. BTC-USD main asset would be BTC and exchanging asset would be USD
+func (e Engine) AssetPair() (string, string) {
+	splittedPair := strings.Split("-", e.Pair)
+	main, exchanging := splittedPair[0], splittedPair[1]
+	return main, exchanging
+}
+
+// PlaceSideToRetrieve returns which side to place in order to get
+// asset specified.
+func (e Engine) PlaceSideToRetrieve(asset string) string {
+	main, exchanging := e.AssetPair()
+	switch {
+	case asset == main:
+		return "bid"
+	case asset == exchanging:
+		return "ask"
+	default:
+		return "invalid"
+	}
 }

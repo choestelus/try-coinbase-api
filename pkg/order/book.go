@@ -45,4 +45,5 @@ func (b Book) PlaceOrder(amount decimal.Decimal, side string) (decimal.Decimal, 
 type BookStreamer interface {
 	OpenStream(config map[string]string) <-chan Book
 	Configure(config map[string]string) BookStreamer
+	PlaceSideToRetrieve() string
 }
