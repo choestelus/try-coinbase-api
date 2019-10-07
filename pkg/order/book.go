@@ -16,22 +16,47 @@ type Order struct {
 	NumOrders int64           `json:"num_orders,omitempty"`
 }
 
-// Match match order with supplied amount and returns taken amount and remaining order
-func Match(o Order, amount decimal.Decimal) (decimal.Decimal, Order) {
-	volume := o.Price.Mul(o.Size)
-	if volume.GreaterThanOrEqual(amount) {
-		taken := volume.Sub(amount)
+// Volume return price*size of order
+func (o Order) Volume() decimal.Decimal {
+	return o.Price.Mul(o.Size)
+}
 
-		takenSize := taken.Div(o.Price)
+// Match match order with supplied amount and returns taken amount and remaining order
+// returned boolean value denotes if matched order is satisfied for amount or not
+// unfortunately, iterator function or applying operation on functor is not idiomatic in go
+// otherwise this could be rewrite to something simpler as foldM
+func Match(o Order, input decimal.Decimal) (decimal.Decimal, Order, bool) {
+	volume := o.Price.Mul(o.Size)
+	if volume.GreaterThanOrEqual(input) {
+		left := volume.Sub(input)
+
+		leftSize := left.Div(o.Price)
 		deductedOrder := o
-		deductedOrder.Size = o.Size.Sub(takenSize)
-		return taken, deductedOrder
+		deductedOrder.Size = leftSize
+		return left, deductedOrder, true
 	}
-	// if amount is too large for order
-	taken := amount
+	// if input amount is too large for order to match with
+	left := decimal.Zero
 	deductedOrder := o
 	deductedOrder.Size = decimal.NewFromFloat(0)
-	return taken, deductedOrder
+	return left, deductedOrder, false
+}
+
+// MatchUntilSatisfied fold(left) over "sorted" orders and return consumed input and amount matched
+func MatchUntilSatisfied(ods []Order, amount decimal.Decimal) (decimal.Decimal, decimal.Decimal) {
+	matched := decimal.Zero
+	consumed := decimal.Zero
+	for _, od := range ods {
+		input := amount.Sub(matched)
+		_, _, satisfied := Match(od, input)
+		consumed = consumed.Add(od.Volume())
+		matched = matched.Add(input)
+		if satisfied {
+			break
+		}
+	}
+
+	return consumed, matched
 }
 
 // Book holds general info of orderbook list
