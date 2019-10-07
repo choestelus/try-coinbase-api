@@ -47,10 +47,11 @@ func MatchUntilSatisfied(ods []Order, amount decimal.Decimal) (decimal.Decimal, 
 	matched := decimal.Zero
 	consumed := decimal.Zero
 	for _, od := range ods {
-		input := amount.Sub(matched)
-		_, _, satisfied := Match(od, input)
-		consumed = consumed.Add(od.Volume())
-		matched = matched.Add(od.Volume().Div(od.Price))
+		input := amount.Sub(consumed)
+		left, _, satisfied := Match(od, input)
+		consumed = consumed.Add(od.Volume().Sub(left))
+		matched = matched.Add(od.Volume().Sub(left).Div(od.Price))
+		// logrus.Infof("l %v c %v m %v r %v", left.String(), consumed.String(), matched.String(), od.Price.String())
 		if satisfied {
 			break
 		}
