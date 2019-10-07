@@ -19,6 +19,9 @@ func main() {
 
 	switch cfg.Mode {
 	case "oneshot":
+		inputAsset := cfg.InputAsset
+		outputAsset := engine.PairOf(inputAsset)
+
 		orderbook := engine.OneShot(cfg.EngineConfig)
 		side := engine.PlaceSideToRetrieve(cfg.InputAsset)
 		orders, err := orderbook.GetOrdersBySide(side)
@@ -26,12 +29,9 @@ func main() {
 			logrus.Panic(err)
 		}
 		amount := decimal.RequireFromString(cfg.Amount)
-
 		consumed, matched := order.MatchUntilSatisfied(side, orders, amount)
-		inputAsset, outputAsset := engine.AssetPair()
-		logrus.Infof("consumed  [%v] %v", consumed.StringFixed(8), inputAsset)
-		logrus.Infof("got       [%v] %v", matched.StringFixed(8), outputAsset)
-		logrus.Infof("avg price [%v] %v/%v", consumed.Div(matched).StringFixed(8), inputAsset, outputAsset)
+
+		Report(amount, consumed, matched, inputAsset, outputAsset)
 	case "service":
 		logrus.Panicf("not implemented: %v", cfg.Mode)
 		// bookstream := engine.OpenStream(cfg.EngineConfig)
@@ -40,4 +40,12 @@ func main() {
 		logrus.Warnf("unrecognized mode: %v", cfg.Mode)
 	}
 
+}
+
+// Report pretty print summary of exchange conversion rate and transaction
+func Report(inputAmount, consumed, matched decimal.Decimal, inputAsset, outputAsset string) {
+	logrus.Infof("attempt to trading with [%v] %v", inputAmount.StringFixed(8), inputAsset)
+	logrus.Infof("consumed  [%v] %v", consumed.StringFixed(8), inputAsset)
+	logrus.Infof("got       [%v] %v", matched.StringFixed(8), outputAsset)
+	logrus.Infof("avg price [%v] %v/%v", consumed.Div(matched).StringFixed(8), inputAsset, outputAsset)
 }
