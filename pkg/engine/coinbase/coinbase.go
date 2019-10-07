@@ -142,21 +142,26 @@ func StreamOrderBook(endpoint string, pair string) <-chan order.Book {
 	return nil
 }
 
+// MustFetch fetches orderbook and transform into Book struct
+// panic when failed
+func MustFetch(endpoint string, level int64, pair string) order.Book {
+	resp, updatedAt, err := FetchOrderBook(endpoint, level, pair)
+	if err != nil {
+		logrus.Panicf("failed to fetch order book: %v", err)
+	}
+	book, err := ToOrderBook(resp, *updatedAt)
+	if err != nil {
+		logrus.Panicf("failed to transform response to order book: %v", err)
+	}
+	return *book
+}
+
 // FetchStream wrap FetchOrderbook and return order book channel
 func FetchStream(interval time.Duration, endpoint string, level int64, pair string) <-chan order.Book {
 	bookStream := make(chan order.Book)
 	go func(endpoint string, level int64, pair string) {
 		for range time.Tick(interval) {
-			resp, updatedAt, err := FetchOrderBook(endpoint, level, pair)
-			if err != nil {
-				logrus.Panicf("failed to fetch order book: %v", err)
-			}
-
-			book, err := ToOrderBook(resp, *updatedAt)
-			if err != nil {
-				logrus.Panicf("failed to transform response to order book: %v", err)
-			}
-			bookStream <- *book
+			bookStream <- MustFetch(endpoint, level, pair)
 		}
 	}(endpoint, level, pair)
 	return bookStream
