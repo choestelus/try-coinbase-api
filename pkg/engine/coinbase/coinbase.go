@@ -23,7 +23,7 @@ import (
 // This function return raw JSON response as-is.
 func FetchOrderBook(endpoint string, level int64, pair string) ([]byte, *time.Time, error) {
 	// TODO: validate available pairs
-	levelErr := validation.Validate(level, validation.Min(1), validation.Max(3))
+	levelErr := validation.Validate(level, validation.Required, validation.Min(1), validation.Max(3))
 	endpointErr := validation.Validate(endpoint, is.URL)
 	err := errors.Combine(levelErr, endpointErr)
 	if level == 3 {
