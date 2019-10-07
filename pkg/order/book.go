@@ -102,24 +102,11 @@ type Book struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// PlaceOrder simulates order placing into exchange, and return
-// converted amount according to orderbook
-// bid means buying order, ask means selling order, in user perspective
-// but side argument determines which side order should be placed
-// e.g. if we want to buy BTC in BTC-USD pair, we should place order at bid side
-func (b Book) PlaceOrder(amount decimal.Decimal, side string) (decimal.Decimal, error) {
-	switch side {
-	case "bid":
-	case "ask":
-	default:
-	}
-	return decimal.Zero, nil
-}
-
 // BookStreamer is main interface for using with
 // streaming API part, underlying that's synchronous
 // blocking API, should be wrapped with channel
 type BookStreamer interface {
+	OneShot(config map[string]string) Book
 	OpenStream(config map[string]string) <-chan Book
 	Configure(config map[string]string) BookStreamer
 	PlaceSideToRetrieve() string
