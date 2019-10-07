@@ -50,12 +50,11 @@ func MatchUntilSatisfied(ods []Order, amount decimal.Decimal) (decimal.Decimal, 
 		input := amount.Sub(matched)
 		_, _, satisfied := Match(od, input)
 		consumed = consumed.Add(od.Volume())
-		matched = matched.Add(input)
+		matched = matched.Add(od.Volume().Div(od.Price))
 		if satisfied {
 			break
 		}
 	}
-
 	return consumed, matched
 }
 

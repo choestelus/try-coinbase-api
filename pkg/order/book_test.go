@@ -2,6 +2,7 @@ package order
 
 import (
 	"testing"
+	"time"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/shopspring/decimal"
@@ -57,8 +58,63 @@ func TestMatch(t *testing.T) {
 		left, leftover, satisfied := Match(tc.o, tc.input)
 		t.Logf("testcase: %v", tc.name)
 		r.Equal(tc.expectedSatisfactory, satisfied)
-		spew.Dump(left)
 		r.True(tc.expectedLeft.Equals(left))
 		r.True(tc.expectedLeftover.Size.Equals(leftover.Size))
+	}
+}
+
+func TestMatchUntilSatisfied(t *testing.T) {
+	r := require.New(t)
+
+	bids := []Order{
+		Order{
+			Price: decimal.NewFromFloat(5000),
+			Size:  decimal.NewFromFloat(1),
+		},
+		Order{
+			Price: decimal.NewFromFloat(4000),
+			Size:  decimal.NewFromFloat(1),
+		},
+	}
+	asks := []Order{
+		Order{
+			Price: decimal.NewFromFloat(6000),
+			Size:  decimal.NewFromFloat(1),
+		},
+		Order{
+			Price: decimal.NewFromFloat(7000),
+			Size:  decimal.NewFromFloat(1),
+		},
+	}
+	book := Book{
+		Sequence:  "0",
+		Bids:      bids,
+		Asks:      asks,
+		UpdatedAt: time.Now(),
+	}
+
+	testcases := []struct {
+		name           string
+		orders         []Order
+		input          decimal.Decimal
+		expectConsumed decimal.Decimal
+		expectMatched  decimal.Decimal
+	}{
+		{
+			name:           "insufficient volume",
+			orders:         book.Bids,
+			input:          decimal.NewFromFloat(15000),
+			expectConsumed: decimal.NewFromFloat(9000),
+			expectMatched:  decimal.NewFromFloat(9000).Div(decimal.NewFromFloat(9000).Div(decimal.NewFromFloat(2))),
+		},
+	}
+
+	for _, tc := range testcases {
+		consumed, matched := MatchUntilSatisfied(tc.orders, tc.input)
+		spew.Dump(consumed)
+		spew.Dump(matched)
+		spew.Dump(tc.expectMatched)
+		r.True(tc.expectConsumed.Equals(consumed))
+		r.True(tc.expectMatched.Equals(matched))
 	}
 }
