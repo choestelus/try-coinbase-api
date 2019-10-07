@@ -7,7 +7,9 @@ import (
 )
 
 type Config struct {
+	Amount       string            `short:"a" long:"amount" required:"true" description:"input amount to calculate"`
 	Mode         string            `short:"m" long:"mode" required:"true" choice:"oneshot" choice:"service" description:"select wheter to run as oneshot or until manually stop"`
+	Engine       string            `short:"E" long:"engine" required:"true" choice:"coinbase_pro" description:"select exchange engine to use"`
 	EngineConfig map[string]string `short:"e" long:"engine-config" required:"true" description:"configuration for exchange engine, in key:value format, one pair per each flag"`
 }
 

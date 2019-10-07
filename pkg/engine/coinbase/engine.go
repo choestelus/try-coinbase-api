@@ -44,5 +44,4 @@ func MustParseConfig(engineConfig map[string]string) Engine {
 // OpenStream streams orderbook with supplied configuration
 func (e Engine) OpenStream(cfg map[string]string) <-chan order.Book {
 	return FetchStream(e.PollInterval, e.APIURL, e.APILevel, e.Pair)
-
 }

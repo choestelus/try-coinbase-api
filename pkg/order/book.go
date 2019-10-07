@@ -30,4 +30,5 @@ type Book struct {
 // blocking API, should be wrapped with channel
 type BookStreamer interface {
 	OpenStream(config map[string]string) <-chan Book
+	MustParseConfig(config map[string]string) BookStreamer
 }

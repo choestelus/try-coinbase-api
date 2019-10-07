@@ -2,10 +2,18 @@ package main
 
 import (
 	"github.com/choestelus/super-duper-succotash/cmd/config"
-	"github.com/davecgh/go-spew/spew"
+	"github.com/choestelus/super-duper-succotash/pkg/engine/coinbase"
+	"github.com/choestelus/super-duper-succotash/pkg/order"
 )
+
+// AvailableEngines contains mapping from exchanges to engines
+var AvailableEngines = map[string]order.BookStreamer{
+	"coinbase_pro": &coinbase.Engine{},
+}
 
 func main() {
 	cfg := config.MustParseConfig()
-	spew.Dump(cfg)
+	engine := AvailableEngines[cfg.Engine]
+	streamer := engine.MustParseConfig(cfg.EngineConfig)
+
 }
