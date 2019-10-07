@@ -46,6 +46,12 @@ func (e Engine) OpenStream(cfg map[string]string) <-chan order.Book {
 	return FetchStream(e.PollInterval, e.APIURL, e.APILevel, e.Pair)
 }
 
+// OneShot returns orderbook only once per call
+// with supplied configuration
+func (e Engine) OneShot(cfg map[string]string) order.Book {
+	return MustFetch(e.APIURL, e.APILevel, e.Pair)
+}
+
 // Configure set self configuration with supplied args
 func (e Engine) Configure(cfg map[string]string) order.BookStreamer {
 	return MustParseConfig(cfg)
