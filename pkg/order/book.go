@@ -1,8 +1,10 @@
 package order
 
 import (
+	"fmt"
 	"time"
 
+	"emperror.dev/errors"
 	"github.com/shopspring/decimal"
 )
 
@@ -102,6 +104,18 @@ type Book struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+// GetOrdersBySide returns orders by side argument
+func (b Book) GetOrdersBySide(side string) ([]Order, error) {
+	switch side {
+	case "bid":
+		return b.Bids, nil
+	case "ask":
+		return b.Asks, nil
+	default:
+		return nil, errors.Wrapf(fmt.Errorf("unexpected side, need [bid|ask] got [%v]", side), "unrecognized side")
+	}
+}
+
 // BookStreamer is main interface for using with
 // streaming API part, underlying that's synchronous
 // blocking API, should be wrapped with channel
@@ -109,5 +123,6 @@ type BookStreamer interface {
 	OneShot(config map[string]string) Book
 	OpenStream(config map[string]string) <-chan Book
 	Configure(config map[string]string) BookStreamer
-	PlaceSideToRetrieve() string
+	PlaceSideToRetrieve(string) string
+	AssetPair() (string, string)
 }
