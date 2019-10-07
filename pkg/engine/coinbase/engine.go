@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/choestelus/super-duper-succotash/pkg/order"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/mitchellh/mapstructure"
 	"github.com/sirupsen/logrus"
 )
@@ -22,7 +21,6 @@ type Engine struct {
 // crash when failed to parse.
 func MustParseConfig(engineConfig map[string]string) Engine {
 	e := Engine{}
-	spew.Dump(engineConfig)
 	mstrConfig := mapstructure.DecoderConfig{
 		DecodeHook:       mapstructure.StringToTimeDurationHookFunc(),
 		WeaklyTypedInput: true,
@@ -60,9 +58,12 @@ func (e Engine) Configure(cfg map[string]string) order.BookStreamer {
 // AssetPair returns main asset and exchanging asset of pair
 // e.g. BTC-USD main asset would be BTC and exchanging asset would be USD
 func (e Engine) AssetPair() (string, string) {
-	splittedPair := strings.Split("-", e.Pair)
+	splittedPair := strings.Split(e.Pair, "-")
+	if len(splittedPair) != 2 {
+		logrus.Panicf("unable to split asset pair: [%v]", e.Pair)
+	}
 	main, exchanging := splittedPair[0], splittedPair[1]
-	return main, exchanging
+	return strings.ToLower(main), strings.ToLower(exchanging)
 }
 
 // PlaceSideToRetrieve returns which side to place in order to get
@@ -71,9 +72,9 @@ func (e Engine) PlaceSideToRetrieve(asset string) string {
 	main, exchanging := e.AssetPair()
 	switch {
 	case asset == main:
-		return "bid"
-	case asset == exchanging:
 		return "ask"
+	case asset == exchanging:
+		return "bid"
 	default:
 		return "invalid"
 	}
