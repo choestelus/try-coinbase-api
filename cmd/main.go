@@ -8,12 +8,11 @@ import (
 
 // AvailableEngines contains mapping from exchanges to engines
 var AvailableEngines = map[string]order.BookStreamer{
-	"coinbase_pro": &coinbase.Engine{},
+	"coinbase_pro": coinbase.Engine{},
 }
 
 func main() {
 	cfg := config.MustParseConfig()
 	engine := AvailableEngines[cfg.Engine]
-	streamer := engine.MustParseConfig(cfg.EngineConfig)
-
+	streamer := engine.Configure(cfg.EngineConfig)
 }

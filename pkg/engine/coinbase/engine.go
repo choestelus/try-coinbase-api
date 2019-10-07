@@ -11,7 +11,6 @@ import (
 
 // Engine holds necessary configuration for coinbase pro API
 type Engine struct {
-	Name         string        `mapstructure:"name"`
 	APIURL       string        `mapstructure:"api_url"`
 	APILevel     int64         `mapstructure:"api_level"`
 	Pair         string        `mapstructure:"pair"`
@@ -44,4 +43,9 @@ func MustParseConfig(engineConfig map[string]string) Engine {
 // OpenStream streams orderbook with supplied configuration
 func (e Engine) OpenStream(cfg map[string]string) <-chan order.Book {
 	return FetchStream(e.PollInterval, e.APIURL, e.APILevel, e.Pair)
+}
+
+// Configure set self configuration with supplied args
+func (e Engine) Configure(cfg map[string]string) order.BookStreamer {
+	return MustParseConfig(cfg)
 }
