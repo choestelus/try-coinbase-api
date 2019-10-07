@@ -13,6 +13,5 @@ var AvailableEngines = map[string]order.BookStreamer{
 
 func main() {
 	cfg := config.MustParseConfig()
-	engine := AvailableEngines[cfg.Engine]
-	streamer := engine.Configure(cfg.EngineConfig)
+	engine := AvailableEngines[cfg.Engine].Configure(cfg.EngineConfig)
 }
