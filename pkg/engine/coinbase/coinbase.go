@@ -33,7 +33,7 @@ func FetchOrderBook(endpoint string, level int64, pair string) ([]byte, *time.Ti
 		return nil, nil, errors.Wrap(err, "[coinbase] malformed params")
 	}
 
-	queryURL := fmt.Sprintf("%s/products/%s/book", endpoint, pair)
+	queryURL := fmt.Sprintf("%s/products/%s/book?level=%v", endpoint, pair, level)
 	client := resty.New()
 	resp, err := client.R().Get(queryURL)
 
