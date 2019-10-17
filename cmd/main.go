@@ -65,12 +65,30 @@ func ExchangeStream(cfg config.Config, engine order.BookStreamer) {
 	}
 }
 
-// Report pretty print summary of exchange conversion rate and transaction
+// Report pretty prints summary of exchange conversion rate and transaction
 func Report(book order.Book, inputAmount, consumed, matched decimal.Decimal, inputAsset, outputAsset string) {
 	logrus.Infof("---------------------%v---------------------------------------------", book.UpdatedAt.UTC())
 	logrus.Infof("attempt to trading with\t[%v] %v", inputAmount.StringFixed(8), inputAsset)
 	logrus.Infof("consumed               \t[%v] %v", consumed.StringFixed(8), inputAsset)
 	logrus.Infof("got                    \t[%v] %v", matched.StringFixed(8), outputAsset)
-	logrus.Infof("avg price              \t[%v] %v/%v", consumed.Div(matched).StringFixed(8), inputAsset, outputAsset)
+
+	priceRate, numeratorAsset, denominatorAsset := reportPriceRateByAsset(consumed, matched, "usd", inputAsset, outputAsset)
+	logrus.Infof("avg price              \t[%v] %v/%v", priceRate.StringFixed(8), numeratorAsset, denominatorAsset)
 	logrus.Infof("---------------------------------------------------------------------------------------------------------")
+}
+
+// we define byAsset parameter as string type, but if type system is expressive enough, it should be sum type of {inputAsset|outputAsset} variances
+// or better, we would need type that can generate another type such as fn AssetEnum("usd", "btc") -> type AssetEnum{btc | usd} which btc and usd are concrete type
+func reportPriceRateByAsset(consumed, matched decimal.Decimal, byAsset, inputAsset, outputAsset string) (decimal.Decimal, string, string) {
+	switch byAsset {
+	case inputAsset:
+		return consumed.Div(matched), inputAsset, outputAsset
+	case outputAsset:
+		// inverse numerator and denominator
+		return matched.Div(consumed), outputAsset, inputAsset
+	default:
+		// default case is actually same as by inputAsset case, but log with warning for wrong input
+		logrus.Warnf("returning as-is: got unrecognized side: [%v], available sides are: [%v | %v]", byAsset, inputAsset, outputAsset)
+		return consumed.Div(matched), inputAsset, outputAsset
+	}
 }
